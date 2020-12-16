@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Livechat</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		body {
+			width: 100vw;
+			height: 100vh;
+			display: flex;
+			padding-bottom: 20px;
+			flex-direction: column;
+			background-color: white;
+			justify-content: space-between;
+		}
+		form {
+			bottom: 0;
+			width: 100vw;
+			height: 60px;
+			display: flex;
+			position: fixed;
+			align-items: center;
+			background-color: #999;
+			justify-content: space-evenly;
+		}
+		input {
+			width: 90%;
+		}
+		input,
+		button,
+		pre {
+			padding: 8px;
+			font-size: 1em;
+			font-family: monospace;
+		}
+	</style>
+</head>
+
+<body>
+	<pre></pre>
+	<form>
+		<input type="text">
+		<button type="submit">Send</button>
+	</form>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		const colors = [
+			'dimgray',
+			'steelblue',
+			'darkgreen',
+			'saddlebrown',
+			'darkslategrey',
+			'darkolivegreen',
+		]
+
+		window.onload = function () {
+			const socket = io()
+			const pre = document.querySelector('pre')
+			const form = document.querySelector('form')
+			const input = document.querySelector('input')
+			const savedName = localStorage.getItem('__name__')
+			const savedColor = localStorage.getItem('__color__')
+			const color = savedColor || colors[rand(colors.length)]
+			const name = savedName || window.prompt('What is your name?')
+
+			localStorage.setItem('__name__', name)
+			localStorage.setItem('__color__', color)
+
+			socket.on('news', data => { pre.innerHTML = data })
+
+			form.addEventListener('submit', e => {
+				e.preventDefault()
+				socket.emit('message', `${name}: ${input.value}`)
+				input.value = ''
+			})
+
+			function rand(max) {
+				return Math.floor(Math.random * Math.floor(max))
+			}
+		}
+	</script>
+</body>
+
+</html>
